@@ -1,0 +1,14 @@
+{
+  "name": "snailman",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Snailman – Pac-Man med en snigel. Jägarna jagar i snigelfart och du får inte korsa ditt eget slemspår. PWA utan byggsteg.",
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/serve.mjs",
+    "test": "node test/paths.test.mjs && node test/rules.test.mjs && node test/maze.test.mjs && node test/engine.test.mjs && node test/sw.test.mjs",
+    "sync:game": "node scripts/sync-game.mjs",
+    "icons": "node scripts/icons.mjs"
+  },
+  "license": "UNLICENSED"
+}

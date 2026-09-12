@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#4c9a3f">
+<meta name="description" content="Snailman – Pac-Man där jägarna jagar i snigelfart och du inte får korsa ditt eget slem. Snailman: Pac-Man with a snail, where your own slime trail is the maze.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Snailman">
+<title>Snailman</title>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="snails.se">
+<meta property="og:title" content="Snailman – Pac-Man, only slow">
+<meta property="og:description" content="Jägarna jagar i snigelfart, och du får inte korsa ditt eget slem. / The hunters hunt at snail speed, and you may not cross your own slime.">
+<meta property="og:image" content="https://snails.se/snailman/icons/icon-512.png">
+<meta property="og:url" content="https://snails.se/snailman/">
+<link rel="canonical" href="https://snails.se/snailman/">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="stage">
+  <canvas id="maze" data-i18n-aria="aria.maze" aria-label="Labyrinten"></canvas>
+  <div id="banner" class="banner" hidden></div>
+</div>
+
+<!-- HUD -->
+<div id="hud" hidden>
+  <div class="hud-top">
+    <div class="stat"><span class="label" data-i18n="hud.score">Poäng</span><span id="hud-score" class="value">0</span></div>
+    <div class="stat best"><span class="label" data-i18n="hud.best">Rekord</span><span id="hud-best" class="value">0</span></div>
+    <div class="stat"><span class="label" data-i18n="hud.level">Nivå</span><span id="hud-level" class="value">1</span></div>
+    <div class="stat lives"><span class="label" data-i18n="hud.lives">Liv</span><canvas id="hud-lives" width="72" height="24" aria-hidden="true"></canvas></div>
+    <div class="hud-btns">
+      <button id="btn-mute" class="icon-btn" aria-label="Ljud av">🔊</button>
+      <button id="btn-menu" class="icon-btn" data-i18n-aria="aria.menu" aria-label="Meny">☰</button>
+    </div>
+  </div>
+</div>
+
+<!-- the cross -->
+<div id="pad" class="pad" hidden>
+  <button id="btn-up" class="pad-btn up" data-i18n-aria="aria.up" aria-label="Upp">▲</button>
+  <button id="btn-left" class="pad-btn left" data-i18n-aria="aria.left" aria-label="Vänster">◀</button>
+  <button id="btn-right" class="pad-btn right" data-i18n-aria="aria.right" aria-label="Höger">▶</button>
+  <button id="btn-down" class="pad-btn down" data-i18n-aria="aria.down" aria-label="Ner">▼</button>
+</div>
+
+<!-- Menu -->
+<div id="menu" class="overlay">
+  <div class="panel">
+    <div class="lang" role="group" aria-label="Språk">
+      <button data-lang="sv" aria-pressed="true">SV</button>
+      <button data-lang="en" aria-pressed="false">EN</button>
+    </div>
+    <h1 data-i18n="app.name">Snailman</h1>
+    <p class="tagline" data-i18n="app.tagline">Pac-Man där jägarna jagar i snigelfart — och du inte får korsa ditt eget slem.</p>
+    <div class="actions">
+      <button id="btn-continue" class="btn secondary" hidden data-i18n="menu.continue">Fortsätt spelet</button>
+      <button id="btn-start" class="btn primary" data-i18n="menu.start">Nytt spel</button>
+      <button id="btn-help" class="btn secondary" data-i18n="menu.help">Så spelar du</button>
+      <button id="btn-install" class="btn secondary" hidden data-i18n="menu.install">Installera app</button>
+    </div>
+    <p id="offline-hint" class="hint"></p>
+    <footer>
+      <span data-i18n="app.by">En <a href="https://knackpot.se" target="_blank" rel="noopener">Knackpot</a>-produkt</span>
+      · <a href="https://snails.se/" data-i18n="app.hub">Fler snigelspel på snails.se</a>
+      · <span id="menu-version"></span>
+    </footer>
+  </div>
+</div>
+
+<!-- Help -->
+<div id="help" class="overlay" hidden>
+  <div class="panel">
+    <h2 data-i18n="help.title">Så spelar du</h2>
+    <p data-i18n="help.1"></p>
+    <p data-i18n="help.2"></p>
+    <p data-i18n="help.3"></p>
+    <p data-i18n="help.4"></p>
+    <p data-i18n="help.5"></p>
+    <div class="actions"><button id="btn-help-close" class="btn primary" data-i18n="help.close">Stäng</button></div>
+  </div>
+</div>
+
+<!-- Game over -->
+<div id="over" class="overlay" hidden>
+  <div class="panel small">
+    <h2 data-i18n="over.title">Uppäten</h2>
+    <p id="over-why" class="why"></p>
+    <p id="over-score" class="score"></p>
+    <p id="over-level" class="why"></p>
+    <p id="over-best" class="best"></p>
+    <div class="actions">
+      <button id="btn-again" class="btn primary" data-i18n="over.again">Spela igen</button>
+      <button id="btn-over-menu" class="btn secondary" data-i18n="over.menu">Till menyn</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
