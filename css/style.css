@@ -68,3 +68,19 @@ footer a { color: inherit; }
 .score { font-size: 30px; font-weight: 800; margin: 6px 0 0; }
 .best { margin: 0 0 14px; color: var(--muted); font-weight: 700; }
 .best.new { color: var(--accent); }
+
+/* ---------- landscape on a phone: HUD and cross in a column on the right ---------- */
+@media (orientation: landscape) and (max-height: 520px) {
+  :root { --side: 176px; }
+  #stage { padding: calc(6px + var(--safe-t)) calc(var(--side) + env(safe-area-inset-right, 0px)) calc(6px + var(--safe-b)) calc(6px + env(safe-area-inset-left, 0px)); }
+  .hud-top { left: auto; right: calc(8px + env(safe-area-inset-right, 0px)); width: calc(var(--side) - 16px); flex-wrap: wrap; gap: 4px; }
+  .stat { min-width: 0; flex: 1 1 45%; padding: 3px 8px; }
+  .stat .value { font-size: 16px; }
+  .stat.best { display: none; }
+  .stat.lives { display: grid; }
+  .hud-btns { margin-left: 0; flex: 1 1 100%; justify-content: flex-end; }
+  .icon-btn { height: 32px; }
+  .pad { left: auto; right: calc(8px + env(safe-area-inset-right, 0px)); bottom: calc(8px + var(--safe-b)); width: calc(var(--side) - 16px); max-width: none; height: 150px; margin: 0; padding: 0; }
+  .pad-btn { font-size: 22px; }
+  .banner { font-size: 26px; }
+}

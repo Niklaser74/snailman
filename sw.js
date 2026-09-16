@@ -1,6 +1,6 @@
 // Service worker: cache-first app shell so the game works offline.
 // Cache names are prefixed per game: everything on snails.se shares one origin.
-const VERSION = 'snailman-v1';
+const VERSION = 'snailman-v2';
 const ASSETS = [
   './',
   './index.html',
