@@ -18,6 +18,7 @@ Fjärde spelet i [snigelserien](https://snails.se) från Knackpot. Live på
 | Tester | `npm test` |
 | Uppdatera `js/game/` från Snäckmageddon | `npm run sync:game` |
 | Ikoner | `npm run icons` |
+| OG-bild | `npm run og:image` (lånar hubbens Playwright) |
 
 Byggstegsfritt: ren HTML, CSS och ES-moduler, inga beroenden. Hela repot
 deployas till GitHub Pages vid push till `main`.
@@ -57,6 +58,6 @@ relativa sökvägar, egen cache-prefix (`snailman-`), egna `localStorage`-nyckla
 
 ## Nästa steg
 
-- Speltesta på telefon och sätt tempot (snigelns fart, hur länge slemmet är blött, kaffet).
+- Speltesta vidare: snigelns fart och jägarnas tempo (slemtiden är satt till 6 s efter speltest).
 - Fler labyrinter — `test/maze.test.mjs` godkänner dem.
 - Leaderboard i Supabase `snails` (prefix `snailman_`), delade konton med de andra spelen.

@@ -16,6 +16,7 @@ Byggstegsfritt PWA: ES-moduler, Canvas, inga npm-beroenden. Bor på
 | Tester | `npm test` |
 | Hämta renderare från Snäckmageddon | `npm run sync:game` (default `../dev-snailmageddon`) |
 | Ikoner (SVG → PNG) | `npm run icons` (lånar hubbens Playwright) |
+| OG-bild | `npm run og:image` → `icons/og-1200x630.png` |
 | Produktionslayout | i hubbrepot: `PORT=8081 node scripts/serve.mjs --mount /snailman=../dev-snailman` |
 
 ## Struktur

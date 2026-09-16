@@ -8,7 +8,8 @@
     "start": "node scripts/serve.mjs",
     "test": "node test/paths.test.mjs && node test/rules.test.mjs && node test/maze.test.mjs && node test/engine.test.mjs && node test/sw.test.mjs",
     "sync:game": "node scripts/sync-game.mjs",
-    "icons": "node scripts/icons.mjs"
+    "icons": "node scripts/icons.mjs",
+    "og:image": "node scripts/og-image.mjs"
   },
   "license": "UNLICENSED"
 }
