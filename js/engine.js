@@ -16,8 +16,8 @@ export const MAX_SUBSTEPS = 6;    // per frame; beyond this we drop time (tab wa
 // ---- tempo: everything is in tiles per second ----
 export const SNAIL_SPEED = 3.6;
 export const CAFFEINE_SPEED = 1.6;   // multiplier while caffeinated
-export const SLIME_TIME = 10;        // seconds a tile stays wet, level 1
-export const SLIME_TIME_MAX = 16;
+export const SLIME_TIME = 6;         // seconds a tile stays wet, level 1 (was 10: painted yourself into corners too fast)
+export const SLIME_TIME_MAX = 12;
 export const CAFFEINE_TIME = 7;      // level 1
 export const CAFFEINE_MIN = 3;
 export const BONUS_TIME = 10;        // the strawberry waits this long
@@ -34,7 +34,7 @@ export const bonusPoints = (level) => Math.min(1000, 100 * level);
 
 // hunters relative to the snail: a hair slower at first, never faster
 export function hunterFactor(level) { return Math.min(0.95, 0.78 + 0.03 * (level - 1)); }
-export function slimeTime(level) { return Math.min(SLIME_TIME_MAX, SLIME_TIME + (level - 1)); }
+export function slimeTime(level) { return Math.min(SLIME_TIME_MAX, SLIME_TIME + 0.5 * (level - 1)); }
 export function caffeineTime(level) { return Math.max(CAFFEINE_MIN, CAFFEINE_TIME - 0.5 * (level - 1)); }
 
 export class Game {
