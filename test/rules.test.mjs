@@ -4,7 +4,7 @@
 //   node test/rules.test.mjs
 import assert from 'node:assert/strict';
 import { hunterFactor, slimeTime, caffeineTime, SNAIL_SPEED, CAFFEINE_SPEED, POINTS, START_LIVES, EXTRA_LIFE_AT } from '../js/engine.js';
-import { HUNTERS, SLIP, TUNNEL_SLOW, FRIGHT_SLOW, HOME_SPEED, SCATTER_CHASE } from '../js/hunters.js';
+import { HUNTERS, SLIP, TUNNEL_SLOW, FRIGHT_SLOW, HOME_SPEED, SCATTER_CHASE, STICKY_AGE, STICK_TIME, STICK_IMMUNE } from '../js/hunters.js';
 import { keysOf } from '../js/i18n.js';
 
 let failed = 0;
@@ -40,6 +40,12 @@ test('the four hunters are the garden figures, released one after another', () =
   for (let i = 1; i < HUNTERS.length; i++) assert.ok(HUNTERS[i].release > HUNTERS[i - 1].release);
   assert.deepEqual(new Set(HUNTERS.map((h) => h.corner)).size, 4, 'own corner each');
   assert.equal(SCATTER_CHASE.at(-1), Infinity, 'chase for good at the end');
+});
+
+test('sticky slime: only the fresh part of the trail, and never a permanent trap', () => {
+  assert.ok(STICKY_AGE < slimeTime(1), 'sticky is the young end of wet');
+  assert.ok(STICK_IMMUNE > STICK_TIME, 'free longer than stuck');
+  assert.ok(STICK_TIME <= 3);
 });
 
 test('scoring doubles per scared hunter, like the arcade', () => {

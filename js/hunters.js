@@ -28,6 +28,13 @@ export const LEAVE_SLOW = 0.6;   // speed on the way out of the heap
 export const HOME_SPEED = 2.0;   // speed of a sent-home hunter (eyes)
 export const NEST_WAIT = 1.5;    // pause in the heap before coming out again
 export const DUCK_SHY = 8;       // tiles: closer than this, the duck heads for its corner
+// Fresh slime is sticky: a hunter that steps into slime younger than STICKY_AGE
+// is stuck for STICK_TIME, then slimed enough not to stick again for a while.
+// Older wet slime only makes them slip. Following right behind the snail is
+// therefore the worst way to hunt it.
+export const STICKY_AGE = 1.5;   // seconds: about the five tiles right behind the snail
+export const STICK_TIME = 1.5;   // seconds stuck
+export const STICK_IMMUNE = 4;   // seconds before it can stick again
 
 export function makeHunters(m) {
   // nest slots: the tile under the door first, then outwards
@@ -35,14 +42,14 @@ export function makeHunters(m) {
   return HUNTERS.map((def, i) => ({
     id: def.id, corner: m.corners[def.corner], release: def.release,
     slot: i === 0 ? m.exit : slots[Math.min(i - 1, slots.length - 1)],
-    mode: 'nest', wait: 0, tx: 0, ty: 0, dir: null, o: 0, path: null,
+    mode: 'nest', wait: 0, tx: 0, ty: 0, dir: null, o: 0, path: null, stuck: 0, immune: 0,
   }));
 }
 
 export function resetHunters(g) {
   const m = g.maze;
   for (const hu of g.hunters) {
-    hu.tx = hu.slot.x; hu.ty = hu.slot.y; hu.o = 0; hu.path = null;
+    hu.tx = hu.slot.x; hu.ty = hu.slot.y; hu.o = 0; hu.path = null; hu.stuck = 0; hu.immune = 0;
     if (hu.id === 'blackbird') { hu.mode = globalMode(g); hu.dir = 'left'; }
     else { hu.mode = 'nest'; hu.wait = hu.release; hu.dir = null; }
   }
@@ -96,6 +103,7 @@ function enterable(g, hu, x, y) {
 
 function decide(g, hu) {
   const m = g.maze;
+  if (hu.stuck > 0) return null;
   if (hu.path && hu.path.length) {
     const p = hu.path[0];
     if (p.x === hu.tx && p.y === hu.ty) { hu.path.shift(); return decide(g, hu); }
@@ -143,6 +151,11 @@ function arrive(g, hu) {
     hu.wait = NEST_WAIT;
     hu.tx = hu.slot.x; hu.ty = hu.slot.y; hu.o = 0; hu.dir = null;
     g.events.push({ type: 'home', id: hu.id });
+    return;
+  }
+  if (active(hu) && hu.immune <= 0 && g.slimeAge(hu.tx, hu.ty) < STICKY_AGE) {
+    hu.stuck = STICK_TIME;
+    g.events.push({ type: 'stuck', id: hu.id, x: hu.tx, y: hu.ty });
   }
 }
 
@@ -157,6 +170,12 @@ export function updateHunter(g, hu, h) {
     }
     return;
   }
+  if (hu.stuck > 0) {
+    hu.stuck -= h;
+    if (hu.stuck > 0 && active(hu)) return;
+    hu.stuck = 0;
+    hu.immune = STICK_IMMUNE;
+  } else if (hu.immune > 0) hu.immune -= h;
   let speed = g.hunterSpeed;
   if (hu.mode === 'leaving') speed *= LEAVE_SLOW;
   else if (hu.mode === 'home') speed *= HOME_SPEED;

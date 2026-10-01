@@ -227,7 +227,7 @@ export class Game {
         const pts = POINTS.hunter[Math.min(this.eatChain, POINTS.hunter.length - 1)];
         this.eatChain++;
         this.addScore(pts);
-        hu.mode = 'home'; hu.path = null;
+        hu.mode = 'home'; hu.path = null; hu.stuck = 0;
         this.freeze = EAT_FREEZE;
         this.events.push({ type: 'scare', id: hu.id, x: sp.x, y: sp.y, score: pts });
         return;

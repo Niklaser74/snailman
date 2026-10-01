@@ -99,6 +99,7 @@ function handleEvents() {
         view.floatText(e.x, e.y - 0.4, '+' + e.score, '#fff');
         break;
       case 'bonusShow': sfx.tickLow(); break;
+      case 'stuck': sfx.splat(); view.burst(e.x + 0.5, e.y + 0.7, '#beff96', 8, 2.5); break;
       case 'bonus': sfx.jump(); view.burst(e.x + 0.5, e.y + 0.5, '#e2453c', 16, 4); view.floatText(e.x + 0.5, e.y, '+' + e.score, '#fff'); break;
       case 'caught': sfx.cracked(); lastCaught = e.id; firstLife = false; break;
       case 'clear': sfx.win(); break;

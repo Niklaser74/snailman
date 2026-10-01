@@ -185,7 +185,22 @@ export class View {
       blink: hu.mode === 'frightened' && g.caffeine < 2 && !this.reduced && Math.floor(time * 5) % 2 === 0,
       eyes: hu.mode === 'home',
     };
-    const draw = (px) => { ctx.save(); ctx.translate(px, y); drawHunter(ctx, hu.id, k, o); ctx.restore(); };
+    const stuck = hu.stuck > 0 && hu.mode !== 'home';
+    const draw = (px) => {
+      ctx.save();
+      ctx.translate(px, y);
+      if (stuck) {
+        // a puddle holding its feet, and a futile wriggle
+        ctx.fillStyle = `rgba(${SLIME},0.85)`;
+        ctx.beginPath(); ctx.ellipse(0, k * 0.34, k * 0.52, k * 0.2, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#2f7a2b'; ctx.lineWidth = Math.max(1.5, k * 0.07); ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.beginPath(); ctx.arc(-k * 0.2, k * 0.3, k * 0.05, 0, Math.PI * 2); ctx.fill();
+        if (!this.reduced) ctx.rotate(Math.sin(time * 18) * 0.12);
+      }
+      drawHunter(ctx, hu.id, k, o);
+      ctx.restore();
+    };
     draw(x);
     // through the tunnel: the other half shows on the other side
     if (g.maze.tunnels.has(hu.ty)) { if (p.x < 1) draw(x + g.maze.w * k); else if (p.x > g.maze.w - 1) draw(x - g.maze.w * k); }

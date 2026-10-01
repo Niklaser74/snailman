@@ -6,6 +6,7 @@ import { Game, READY_TIME, SNAIL_SPEED, POINTS, START_LIVES, DYING_TIME, CLEAR_T
 import { LETTUCE, BEAN, NONE, PATH, tileAt } from '../js/maze.js';
 import { posOf, DIR_ORDER } from '../js/mover.js';
 import { Hasher } from '../js/game/rng.js';
+import { STICKY_AGE, STICK_TIME } from '../js/hunters.js';
 
 let failed = 0;
 function test(name, fn) {
@@ -188,13 +189,53 @@ test('all four hunters leave the heap and roam', () => {
 test('hunters slip on wet slime', () => {
   const g = fresh();
   const hu = g.hunters[0];
-  hu.mode = 'chase'; hu.tx = 1; hu.ty = 3; hu.o = 0; hu.dir = 'right';
+  hu.mode = 'chase'; hu.tx = 1; hu.ty = 3; hu.o = 0; hu.dir = 'right'; hu.immune = 99; // slipping only, not sticking
   const dry = new Game({ seed: 7 }); run(dry, READY_TIME + 0.01);
   const hd = dry.hunters[0]; hd.mode = 'chase'; hd.tx = 1; hd.ty = 3; hd.o = 0; hd.dir = 'right';
   for (let x = 1; x < 18; x++) g.laySlime(x, 3);
   g.snail.tx = 17; g.snail.ty = 3; dry.snail.tx = 17; dry.snail.ty = 3;
   run(g, 1); run(dry, 1);
   assert.ok(posOf(hu).x < posOf(hd).x - 1, `slipped: ${posOf(hu).x} vs ${posOf(hd).x}`);
+});
+
+test('fresh slime is sticky: the hunter stops, wriggles free, and is immune for a while', () => {
+  const g = fresh();
+  const hu = g.hunters[0];
+  hu.mode = 'chase'; hu.tx = 1; hu.ty = 3; hu.o = 0; hu.dir = 'right';
+  g.snail.tx = 17; g.snail.ty = 3;
+  for (let x = 2; x < 17; x++) g.laySlime(x, 3);
+  run(g, 0.6);
+  assert.ok(hu.stuck > 0, 'stuck on the first fresh tile');
+  assert.deepEqual([hu.tx, hu.ty, hu.o], [2, 3, 0]);
+  assert.ok(g.takeEvents().some((e) => e.type === 'stuck' && e.id === 'blackbird'));
+  run(g, STICK_TIME);
+  assert.equal(hu.stuck, 0);
+  assert.ok(hu.immune > 0, 'slimed: cannot stick again yet');
+  run(g, 1.5);
+  assert.ok(hu.tx > 3 && hu.stuck === 0, `moving again through wet slime: ${hu.tx}`);
+});
+
+test('slime older than STICKY_AGE only makes them slip', () => {
+  const g = fresh();
+  for (let x = 2; x < 17; x++) g.laySlime(x, 3);
+  g.snail.tx = 17; g.snail.ty = 15;
+  for (const h of g.hunters) { h.mode = 'nest'; h.wait = 99; }
+  run(g, STICKY_AGE + 0.1);
+  const hu = g.hunters[0];
+  hu.mode = 'chase'; hu.tx = 1; hu.ty = 3; hu.o = 0; hu.dir = 'right'; hu.path = null;
+  g.snail.ty = 3;
+  run(g, 1.5);
+  assert.equal(hu.stuck, 0);
+  assert.ok(hu.tx >= 2, 'still moving');
+});
+
+test('a hunter stuck in slime still catches a snail that walks into it', () => {
+  const g = fresh();
+  const hu = g.hunters[0];
+  hu.mode = 'chase'; hu.tx = g.snail.tx - 2; hu.ty = g.snail.ty; hu.o = 0; hu.dir = 'right'; hu.stuck = 5;
+  g.want('left');
+  run(g, 0.8);
+  assert.equal(g.state, 'dying');
 });
 
 test('deterministic: same seed and inputs, same game', () => {
