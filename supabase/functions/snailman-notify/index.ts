@@ -1,6 +1,7 @@
 // Push notifications for Snailman's Snigelpost tournaments. Sibling of
-// Snäckschack's chess-notify-turn: same Vault key, same subscription table
-// (snails_push_subscriptions), its own tables and texts.
+// Snäckschack's chess-notify-turn: same Vault key, but Snailman's own
+// subscription table (snailman_push_subscriptions), so a notice never reaches
+// another game's service worker on snails.se; its own tables and texts.
 // Called by the client right after it has joined, played a round or ended
 // the tournament. The gateway verifies the caller's JWT; this function checks
 // that the caller is in the tournament and only ever notifies the others.
@@ -88,7 +89,7 @@ Deno.serve(async (req) => {
     if (!messages.size) return json({ sent: 0, reason: 'nothing to tell' });
 
     const ids = [...messages.keys()].map(encodeURIComponent).join(',');
-    const subs = await (await rest(`snails_push_subscriptions?user_id=in.(${ids})&select=user_id,endpoint,p256dh,auth,lang`)).json();
+    const subs = await (await rest(`snailman_push_subscriptions?user_id=in.(${ids})&select=user_id,endpoint,p256dh,auth,lang`)).json();
     if (!subs.length) return json({ sent: 0, reason: 'no subscriptions' });
     const jwkText = await (await rest('rpc/snails_vapid_private', { method: 'POST', body: '{}' })).json();
     if (!jwkText) return json({ error: 'vapid key missing' }, 500);
@@ -106,7 +107,7 @@ Deno.serve(async (req) => {
       if (status === 201 || status === 200) sent++;
       else if (status === 404 || status === 410) dead.push(s.endpoint);
     }
-    for (const e of dead) await rest(`snails_push_subscriptions?endpoint=eq.${encodeURIComponent(e)}`, { method: 'DELETE' });
+    for (const e of dead) await rest(`snailman_push_subscriptions?endpoint=eq.${encodeURIComponent(e)}`, { method: 'DELETE' });
     return json({ sent, dead: dead.length });
   } catch (e) {
     return json({ error: String((e as Error).message || e) }, 500);

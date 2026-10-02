@@ -24,7 +24,7 @@ function test(name, fn) {
 // called, and best-effort error handling swallowed it (Snail Story's
 // test/cloud.test.mjs has the story). Shared functions (snails_*) live in the
 // snailmageddon repo and are only checked by name against a known list.
-const SHARED = new Set(['snails_profile', 'snails_save_push']);
+const SHARED = new Set(['snails_profile']);
 const clientSrc = src('js/online.js') + src('js/push.js');
 const calls = [...clientSrc.matchAll(/online\.rpc\(\s*'([a-z0-9_]+)'/g)].map((m) => m[1]);
 
