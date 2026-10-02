@@ -34,7 +34,7 @@ const sv = {
   joined: (n: string, k: number, max: number) => `${n} gick med i turneringen (${k} av ${max}).`,
   yourTurn: (n: string, s: number, r: number) => `${n} fick ${s} poäng på omgång ${r}. Din tur!`,
   beaten: (n: string, s: number, mine: number, r: number) => `${n} slog dig på omgång ${r}: ${s} mot ${mine}.`,
-  finished: (place: number, of: number) => place === 1 ? `Turneringen är slut. Du vann!` : `Turneringen är slut. Du kom ${place}:a av ${of}.`,
+  finished: (place: number, of: number) => place === 1 ? `Turneringen är slut. Du vann!` : `Turneringen är slut. Du kom på plats ${place} av ${of}.`,
 };
 const en = {
   title: 'Snailman',

@@ -44,7 +44,7 @@ const dict = {
     'rounds.1': '1 omgång', 'rounds.3': '3 omgångar', 'rounds.5': '5 omgångar', 'players.2': '2 (duell)',
     'post.create': 'Skapa turnering', 'post.mine': 'Mina turneringar', 'post.none': 'Inga turneringar än. Skapa en och skicka länken.',
     'post.vs': 'med {names}', 'post.alone': 'Väntar på deltagare', 'post.open': 'Öppna',
-    'post.state.play': 'Din tur: omgång {round}', 'post.state.wait': 'Väntar på de andra', 'post.state.done': 'Klar: {place}:a av {of}', 'post.state.won': 'Klar: du vann',
+    'post.state.play': 'Din tur: omgång {round}', 'post.state.wait': 'Väntar på de andra', 'post.state.done': 'Klar: plats {place} av {of}', 'post.state.won': 'Klar: du vann',
     'contest.title': 'Turnering', 'contest.meta': '{rounds} · {players} av {max} spelare · slutar {deadline}', 'contest.metaDone': '{rounds} · {players} spelare · avslutad',
     'contest.copy': 'Kopiera länk', 'contest.copied': 'Kopierad!', 'contest.share': 'Dela', 'contest.shareText': 'Spela Snailman mot mig i Snigelpost:',
     'contest.join': 'Gå med', 'contest.end': 'Avsluta nu', 'contest.endConfirm': 'Avsluta turneringen nu? Omgångar som inte är spelade räknas som 0.',
