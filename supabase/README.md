@@ -16,12 +16,13 @@ snailmageddon-repots `supabase/README.md`.
 | `snailman_contest_players` | Deltagare med namn; `hidden` när någon tagit bort en avslutad turnering ur sin lista |
 | `snailman_contest_runs` | En omgång per spelare: poäng, nivå, ticks, inspelning. Främmande nyckel mot deltagaren, så att lämna tar med omgångarna |
 | `snailman_daily_submit/daily_board/records_board` | topplistorna |
+| `snailman_daily_leader` | **den enda som är öppen för anon**: dagens ledares namn och poäng + antal spelare, för hubbens kort (som aldrig skapar konton) |
 | `snailman_contest_create/join/get/my_contests/submit/run/close/leave` | turneringarna |
 | `snailman_contest_settle` (intern) | avslutar när alla platser är fyllda och alla spelat allt, eller vid deadline. Anropas av get, join, submit och listan, så att ingen behöver vänta på cron |
 | `snailman_cleanup` + cron `snailman_cleanup` (`41 * * * *`) | deadline, avslutade turneringar efter 90 dagar, dagsrader efter 60 |
 | edge-funktion `snailman-notify` | push till de andra i en turnering: någon gick med, någon spelade (din tur, eller "X slog dig på omgång 2"), slutplacering. Skickar via `snails_push_subscriptions` och `snails_vapid_private` |
 
-Alla klientfunktioner är `security definer` med kontroll på `auth.uid()` och
+Alla klientfunktioner är `security definer`. Alla utom `snailman_daily_leader` kontrollerar `auth.uid()` och är
 beviljade bara till `authenticated`; tabellerna har RLS utan policyer, så
 klienten når dem aldrig direkt.
 
