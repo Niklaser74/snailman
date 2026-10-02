@@ -79,3 +79,29 @@ av snailmageddons) och `standings.js` (kopia av spelets `js/standings.js` —
 den aldrig här. `js/supa.js` re-exporterar den. Sessionen ligger under
 `snails.session`; det är det enda undantaget från regeln att nycklar prefixas
 `snailman.`.
+
+## Radering
+
+Alla `snailman_*`-tabeller med ett spelar-id har en främmande nyckel mot
+`auth.users` med `on delete cascade` (`20261002150000_snailman_account_cascade.sql`).
+Ett raderat konto tar med sig sina dagsrader, sitt rekord och sina
+turneringsomgångar; en turnering det var värd för raderas i sin helhet.
+Samma sak gäller seriens övriga spel, se snailmageddon-repots `supabase/README.md`.
+Ny tabell med ett spelar-id ska ha samma nyckel. Kontroll att ingen saknas:
+
+```sql
+with cols as (
+  select c.table_name, c.column_name from information_schema.columns c
+  join information_schema.tables t on t.table_schema = c.table_schema and t.table_name = c.table_name and t.table_type = 'BASE TABLE'
+  where c.table_schema = 'public' and c.data_type = 'uuid'
+    and c.column_name not in ('id', 'contest', 'series_id', 'current_match', 'tourney_id', 'match_id', 'client_id', 'session_id', 'rematch')
+), fks as (
+  select cl.relname as table_name, a.attname as column_name
+  from pg_constraint con join pg_class cl on cl.oid = con.conrelid join pg_namespace n on n.oid = cl.relnamespace
+  join lateral unnest(con.conkey) k(attnum) on true join pg_attribute a on a.attrelid = con.conrelid and a.attnum = k.attnum
+  where con.contype = 'f' and n.nspname = 'public'
+)
+select count(*) filter (where f.table_name is null) as missing,
+  string_agg(c.table_name || '.' || c.column_name, ', ') filter (where f.table_name is null) as which
+from cols c left join fks f using (table_name, column_name);
+```
