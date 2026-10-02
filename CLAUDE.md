@@ -17,6 +17,7 @@ Byggstegsfritt PWA: ES-moduler, Canvas, inga npm-beroenden. Bor på
 | Hämta renderare från Snäckmageddon | `npm run sync:game` (default `../dev-snailmageddon`) |
 | Ikoner (SVG → PNG) | `npm run icons` (lånar hubbens Playwright) |
 | OG-bild | `npm run og:image` → `icons/og-1200x630.png` |
+| Hämta seriens kontoklient | `npm run sync:account` (default `../dev-snails`) |
 | Produktionslayout | i hubbrepot: `PORT=8081 node scripts/serve.mjs --mount /snailman=../dev-snailman` |
 
 ## Struktur
@@ -29,10 +30,15 @@ js/hunters.js   de fyra jägarnas AI (scatter/chase/frightened/home), bo och sl�
 js/sprites.js   jägarna, sallad, kaffeböna, jordgubbe — canvas-paths
 js/view.js      häckarna (ritas en gång), slem, föremål, snigeln via drawSnail, effekter
 js/input.js     svep på planen, styrkors, tangentbord → en dir()-callback
-js/main.js      meny, loop, HUD, banner, spara/fortsätt, ljud, PWA
+js/online.js    Dagens labyrint, topplistor, Snigelpost-turneringar: tunna RPC-omslag, kö för inskick utan nät
+js/standings.js turneringens placering — KOPIA i supabase/functions/snailman-notify/, ska vara identisk
+js/push.js      Web Push-prenumeration och anrop till snailman-notify
+js/account.js   KOPIA av hubbens kontoklient — rör aldrig, kör sync:account (supa.js re-exporterar)
+js/main.js      meny, loop, HUD, banner, spara/fortsätt, de fyra lägena (fritt, dagens, turnering, repris), PWA
 js/i18n.js      sv/en
 js/game/        KOPIOR från snailmageddon — rör aldrig, kör sync:game
 test/           handrullade tester utan ramverk, node:assert
+supabase/       migrationer, SQL-test och edge-funktionen — se supabase/README.md
 ```
 
 ## Konventioner
@@ -50,11 +56,18 @@ test/           handrullade tester utan ramverk, node:assert
 - All UI-text via `t()`, svenska och engelska samtidigt; `test/rules.test.mjs` kräver nyckelparitet.
 - Svenska först i HTML, engelska via `data-i18n`.
 - Tempo och balans är konstanter överst i `engine.js` och `hunters.js` — ändra där, inte inline.
+- **Ändras något som påverkar vad en inspelning spelas upp till** (tempo, poäng, labyrinter, jägare):
+  höj `RULES_VERSION` i `engine.js` och ta in den i `snailman_rules_ok` med en ny migration.
+  Annars spelas gamla omgångar upp fel och turneringar blandar regler. Se `supabase/README.md`.
+- **Varje RPC klienten anropar ska finnas i en migration med samma argumentnamn** — `test/online.test.mjs`.
+- Ändras `js/standings.js`: kopiera till edge-funktionen och driftsätt den.
+- Allt mot nätet är best effort men får aldrig påstå att det gick: ett inskick som inte nådde fram köas och sägs vara köat.
 - `docs-vault/` (Obsidian) och `.claude/` committas aldrig.
 
 ## Rör inte
 
 - `js/game/*` — kopior. Ändra uppströms i snailmageddon och kör `npm run sync:game`.
+- `js/account.js` — kopia av hubbens. Ändra i hubben och kör `npm run sync:account`.
 - `manifest.id` — appens identitet på den delade originen.
 
 ## Innan du är klar

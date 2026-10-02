@@ -16,6 +16,11 @@ const ASSETS = [
   './js/input.js',
   './js/i18n.js',
   './js/config.js',
+  './js/online.js',
+  './js/standings.js',
+  './js/push.js',
+  './js/supa.js',
+  './js/account.js',
   './js/game/snails.js',
   './js/game/cosmetics.js',
   './js/game/themes.js',
@@ -38,6 +43,31 @@ self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) => Promise.all(keys.filter((k) => k.startsWith('snailman-') && k !== VERSION).map((k) => caches.delete(k)))).then(() => self.clients.claim())
   );
+});
+
+// ---------- Web Push (Snigelpost: somebody has played) ----------
+self.addEventListener('push', (e) => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch { d = { body: e.data && e.data.text() }; }
+  e.waitUntil(self.registration.showNotification(d.title || 'Snailman', {
+    body: d.body || '',
+    icon: './icons/icon-192.png',
+    badge: './icons/icon-192.png',
+    tag: d.tag || 'snailman',
+    renotify: true,
+    data: { url: d.url || './' },
+  }));
+});
+
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || './';
+  e.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+    for (const c of list) {
+      if ('focus' in c) { if ('navigate' in c) c.navigate(url); return c.focus(); }
+    }
+    return clients.openWindow(url);
+  }));
 });
 
 self.addEventListener('fetch', (e) => {

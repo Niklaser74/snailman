@@ -11,6 +11,15 @@ import { OPP, posOf, dist, reverse, step } from './mover.js';
 import { makeHunters, resetHunters, updateHunter, frightenAll, calmAll, applyGlobalMode, isActive, SCATTER_CHASE } from './hunters.js';
 
 export const H = 1 / 120;         // fixed step
+
+// Bumped whenever a change alters what a recorded run replays to (tempo,
+// scoring, mazes, hunter behaviour). Snigelpost and the leaderboards store it
+// with every run; a client only replays runs of a version it knows.
+export const RULES_VERSION = 1;
+export const SUPPORTED_RULES = [1];
+// One letter per direction in a recording, so a long run stays small.
+const DIR_CODE = { up: 'u', down: 'd', left: 'l', right: 'r' };
+const CODE_DIR = { u: 'up', d: 'down', l: 'left', r: 'right' };
 export const MAX_SUBSTEPS = 6;    // per frame; beyond this we drop time (tab was hidden)
 
 // ---- tempo: everything is in tiles per second ----
@@ -49,6 +58,8 @@ export class Game {
     this.events = [];
     this.acc = 0;
     this.time = 0;
+    this.ticks = 0;     // fixed steps taken since the start, whatever the state
+    this.inputs = [];   // the recording: [tick, 'u'|'d'|'l'|'r'], one per swipe or key
     this.snail = { tx: 0, ty: 0, dir: null, want: null, o: 0, facing: -1, stuck: false };
     this.hunters = null;
     this.loadLevel(level);
@@ -108,8 +119,10 @@ export class Game {
 
   // ---------- input ----------
   want(dir) {
-    if (!dir) return;
+    if (!DIR_CODE[dir]) return;
+    if (this.state === 'over') return;
     this.snail.want = dir;
+    this.inputs.push([this.ticks, DIR_CODE[dir]]);
   }
 
   // ---------- time ----------
@@ -121,6 +134,8 @@ export class Game {
   }
 
   tick(h) {
+    if (this.state === 'over') return; // a finished run's length is fixed: frames after the end do not count
+    this.ticks++;
     this.time += h;
     switch (this.state) {
       case 'ready':
@@ -244,7 +259,7 @@ export class Game {
   // ---------- save / restore ----------
   toJSON() {
     return {
-      v: 1, seed: this.seed, rngDraws: this.rngDraws, level: this.level, score: this.score, lives: this.lives,
+      v: 2, ticks: this.ticks, inputs: this.inputs.map((i) => [...i]), seed: this.seed, rngDraws: this.rngDraws, level: this.level, score: this.score, lives: this.lives,
       extraLifeGiven: this.extraLifeGiven, time: this.time, state: this.state, stateT: this.stateT,
       items: Array.from(this.items), lettuceLeft: this.lettuceLeft, slime: Array.from(this.slime),
       snail: { ...this.snail }, hunters: this.hunters.map((hu) => ({ ...hu, path: hu.path ? hu.path.map((p) => ({ ...p })) : null })),
@@ -265,7 +280,47 @@ export class Game {
     j.hunters.forEach((hu, i) => { Object.assign(g.hunters[i], hu); g.hunters[i].corner = g.maze.corners[i]; g.hunters[i].slot = i === 0 ? g.maze.exit : g.hunters[i].slot; });
     g.modeIndex = j.modeIndex; g.modeT = j.modeT; g.caffeine = j.caffeine; g.eatChain = j.eatChain; g.freeze = j.freeze;
     g.bonus = j.bonus; g.bonusesShown = j.bonusesShown;
+    g.ticks = j.ticks || 0;
+    g.inputs = Array.isArray(j.inputs) ? j.inputs.map((i) => [...i]) : [];
     g.events = [];
     return g;
   }
+}
+
+// ---------- replay ----------
+// A run is a seed plus its recording. Replaying applies every input at the
+// tick it was made and steps the simulation exactly as the live game did, so
+// the score at the end is the score the player got — or the recording lies.
+export class Replay {
+  constructor(seed, inputs) {
+    this.game = new Game({ seed });
+    this.inputs = inputs || [];
+    this.next = 0;
+  }
+  get done() { return this.game.state === 'over'; }
+  // Steps n ticks (or until the game is over). Returns ticks taken.
+  step(n) {
+    const g = this.game;
+    let k = 0;
+    while (k < n && g.state !== 'over') {
+      while (this.next < this.inputs.length && this.inputs[this.next][0] <= g.ticks) {
+        const d = CODE_DIR[this.inputs[this.next][1]];
+        if (d) g.snail.want = d;
+        this.next++;
+      }
+      g.tick(H);
+      k++;
+    }
+    return k;
+  }
+  // The whole run at once. maxTicks guards against a recording that never ends.
+  runToEnd(maxTicks = 120 * 60 * 90) {
+    this.step(maxTicks);
+    return this.game;
+  }
+}
+
+// What the server stores for a finished run.
+export function runSummary(g) {
+  return { score: g.score, level: g.level, ticks: g.ticks, inputs: g.inputs.map((i) => [...i]), rulesVersion: RULES_VERSION };
 }

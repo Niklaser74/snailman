@@ -36,10 +36,16 @@
     <div class="stat best"><span class="label" data-i18n="hud.best">Rekord</span><span id="hud-best" class="value">0</span></div>
     <div class="stat"><span class="label" data-i18n="hud.level">Nivå</span><span id="hud-level" class="value">1</span></div>
     <div class="stat lives"><span class="label" data-i18n="hud.lives">Liv</span><canvas id="hud-lives" width="72" height="24" aria-hidden="true"></canvas></div>
+    <div class="stat target" id="hud-target-box" hidden><span class="label" id="hud-target-label"></span><span id="hud-target" class="value"></span></div>
     <div class="hud-btns">
       <button id="btn-mute" class="icon-btn" aria-label="Ljud av">🔊</button>
       <button id="btn-menu" class="icon-btn" data-i18n-aria="aria.menu" aria-label="Meny">☰</button>
     </div>
+  </div>
+  <div id="replay-bar" class="replay-bar" hidden>
+    <span id="replay-title"></span>
+    <button id="btn-replay-speed" class="icon-btn wide-icon">1×</button>
+    <button id="btn-replay-close" class="icon-btn" data-i18n-aria="aria.close" aria-label="Stäng">✕</button>
   </div>
 </div>
 
@@ -63,13 +69,18 @@
     <div class="actions">
       <button id="btn-continue" class="btn secondary" hidden data-i18n="menu.continue">Fortsätt spelet</button>
       <button id="btn-start" class="btn primary" data-i18n="menu.start">Nytt spel</button>
+      <button id="btn-daily" class="btn secondary wide" data-i18n="menu.daily">Dagens labyrint</button>
+      <button id="btn-post" class="btn secondary" data-i18n="menu.post">Snigelpost</button>
+      <button id="btn-board" class="btn secondary" data-i18n="menu.board">Topplista</button>
       <button id="btn-help" class="btn secondary" data-i18n="menu.help">Så spelar du</button>
       <button id="btn-install" class="btn secondary" hidden data-i18n="menu.install">Installera app</button>
     </div>
+    <p id="daily-line" class="hint"></p>
     <p id="offline-hint" class="hint"></p>
     <footer>
       <span data-i18n="app.by">En <a href="https://knackpot.se" target="_blank" rel="noopener">Knackpot</a>-produkt</span>
       · <a href="https://snails.se/" data-i18n="app.hub">Fler snigelspel på snails.se</a>
+      · <a href="https://snails.se/privacy.html" data-i18n="app.privacy">Integritet</a>
       · <span id="menu-version"></span>
     </footer>
   </div>
@@ -84,6 +95,8 @@
     <p data-i18n="help.3"></p>
     <p data-i18n="help.4"></p>
     <p data-i18n="help.5"></p>
+    <p data-i18n="help.6"></p>
+    <p data-i18n="help.7"></p>
     <div class="actions"><button id="btn-help-close" class="btn primary" data-i18n="help.close">Stäng</button></div>
   </div>
 </div>
@@ -96,9 +109,80 @@
     <p id="over-score" class="score"></p>
     <p id="over-level" class="why"></p>
     <p id="over-best" class="best"></p>
+    <p id="over-online" class="online-line" hidden></p>
     <div class="actions">
+      <button id="btn-over-contest" class="btn primary" hidden data-i18n="over.toContest">Till turneringen</button>
       <button id="btn-again" class="btn primary" data-i18n="over.again">Spela igen</button>
+      <button id="btn-over-board" class="btn secondary" hidden data-i18n="menu.board">Topplista</button>
       <button id="btn-over-menu" class="btn secondary" data-i18n="over.menu">Till menyn</button>
+    </div>
+  </div>
+</div>
+
+<!-- Topplista -->
+<div id="board" class="overlay" hidden>
+  <div class="panel">
+    <h2 data-i18n="board.title">Topplista</h2>
+    <div class="tabs" role="tablist">
+      <button data-board="today" role="tab" aria-selected="true" data-i18n="board.today">Idag</button>
+      <button data-board="yesterday" role="tab" aria-selected="false" data-i18n="board.yesterday">Igår</button>
+      <button data-board="records" role="tab" aria-selected="false" data-i18n="board.records">Rekord</button>
+    </div>
+    <p id="board-lead" class="hint left"></p>
+    <ol id="board-list" class="board-list"></ol>
+    <p id="board-me" class="hint left"></p>
+    <p id="board-status" class="hint"></p>
+    <div class="actions">
+      <button id="btn-board-play" class="btn primary" data-i18n="board.play">Spela dagens labyrint</button>
+      <button id="btn-board-close" class="btn secondary" data-i18n="common.close">Stäng</button>
+    </div>
+  </div>
+</div>
+
+<!-- Snigelpost: my tournaments -->
+<div id="post" class="overlay" hidden>
+  <div class="panel">
+    <h2 data-i18n="post.title">Snigelpost</h2>
+    <p class="hint left" data-i18n="post.blurb"></p>
+    <label class="field"><span data-i18n="post.name">Ditt namn</span><input id="opt-name" maxlength="24" autocomplete="nickname"></label>
+    <div class="row">
+      <label class="field"><span data-i18n="post.rounds">Omgångar</span>
+        <select id="opt-rounds"><option value="1" data-i18n="rounds.1">1</option><option value="3" selected data-i18n="rounds.3">3</option><option value="5" data-i18n="rounds.5">5</option></select></label>
+      <label class="field"><span data-i18n="post.players">Spelare</span>
+        <select id="opt-players"><option value="2" selected data-i18n="players.2">2</option><option value="3">3</option><option value="4">4</option><option value="6">6</option><option value="8">8</option></select></label>
+    </div>
+    <div class="actions"><button id="btn-post-create" class="btn primary" data-i18n="post.create">Skapa turnering</button></div>
+    <h3 data-i18n="post.mine">Mina turneringar</h3>
+    <ul id="post-list" class="post-list"></ul>
+    <p id="post-status" class="hint"></p>
+    <div class="actions">
+      <button id="btn-push" class="btn secondary" hidden></button>
+      <button id="btn-post-close" class="btn secondary" data-i18n="common.close">Stäng</button>
+    </div>
+  </div>
+</div>
+
+<!-- One tournament -->
+<div id="contest" class="overlay" hidden>
+  <div class="panel wide">
+    <h2 id="contest-title" data-i18n="contest.title">Turnering</h2>
+    <p id="contest-meta" class="hint left"></p>
+    <div id="contest-invite" class="invite" hidden>
+      <input id="contest-link" readonly aria-label="Länk">
+      <button id="btn-contest-copy" class="btn secondary" data-i18n="contest.copy">Kopiera länk</button>
+      <button id="btn-contest-share" class="btn secondary" hidden data-i18n="contest.share">Dela</button>
+    </div>
+    <div class="table-wrap"><table id="contest-table" class="standings"></table></div>
+    <p id="contest-note" class="hint left"></p>
+    <label id="contest-join-name" class="field" hidden><span data-i18n="post.name">Ditt namn</span><input id="opt-join-name" maxlength="24" autocomplete="nickname"></label>
+    <p id="contest-status" class="hint"></p>
+    <div class="actions">
+      <button id="btn-contest-play" class="btn primary" hidden></button>
+      <button id="btn-contest-join" class="btn primary" hidden data-i18n="contest.join">Gå med</button>
+      <button id="btn-contest-push" class="btn secondary" hidden></button>
+      <button id="btn-contest-end" class="btn secondary" hidden data-i18n="contest.end">Avsluta nu</button>
+      <button id="btn-contest-leave" class="btn secondary" hidden data-i18n="contest.leave">Lämna</button>
+      <button id="btn-contest-back" class="btn secondary" data-i18n="contest.back">Tillbaka</button>
     </div>
   </div>
 </div>

@@ -2,7 +2,7 @@
 // clear, determinism and save/restore.
 //   node test/engine.test.mjs
 import assert from 'node:assert/strict';
-import { Game, READY_TIME, SNAIL_SPEED, POINTS, START_LIVES, DYING_TIME, CLEAR_TIME } from '../js/engine.js';
+import { Game, Replay, runSummary, RULES_VERSION, READY_TIME, SNAIL_SPEED, POINTS, START_LIVES, DYING_TIME, CLEAR_TIME } from '../js/engine.js';
 import { LETTUCE, BEAN, NONE, PATH, tileAt } from '../js/maze.js';
 import { posOf, DIR_ORDER } from '../js/mover.js';
 import { Hasher } from '../js/game/rng.js';
@@ -270,6 +270,42 @@ test('a random bot survives long enough to be a game, and the game ends', () => 
   }
   assert.ok(ended >= 4, `games over within four minutes: ${ended}/6`);
   assert.ok(Math.max(...scores) >= 300, `scores: ${scores.join(' ')}`);
+});
+
+test('a recorded run replays to the same score, level and tick count', () => {
+  for (const seed of [5, 77, 2026]) {
+    const g = new Game({ seed });
+    const r = lcg(seed);
+    // frames of uneven length, like a real browser, including a hiccup that drops time
+    const frames = [1 / 60, 1 / 30, 1 / 144, 0.1, 1 / 60];
+    let f = 0;
+    while (g.state !== 'over' && g.ticks < 120 * 600) { g.advance(frames[f++ % frames.length]); bot(g, r); }
+    assert.equal(g.state, 'over', 'the bot ends its game');
+    const run = runSummary(g);
+    assert.equal(run.rulesVersion, RULES_VERSION);
+    const back = new Replay(seed, JSON.parse(JSON.stringify(run.inputs))).runToEnd();
+    assert.equal(back.state, 'over');
+    assert.deepEqual([back.score, back.level, back.ticks], [run.score, run.level, run.ticks], `seed ${seed}`);
+  }
+});
+
+test('a run saved and resumed halfway still replays to the same score', () => {
+  const g0 = new Game({ seed: 31 });
+  const r = lcg(8);
+  run(g0, 20, (gg) => bot(gg, r));
+  const g = Game.fromJSON(JSON.parse(JSON.stringify(g0.toJSON())));
+  while (g.state !== 'over' && g.ticks < 120 * 600) { g.advance(1 / 60); bot(g, r); }
+  const back = new Replay(31, runSummary(g).inputs).runToEnd();
+  assert.deepEqual([back.score, back.ticks], [g.score, g.ticks]);
+});
+
+test('a doctored recording does not replay to the claimed score', () => {
+  const g = new Game({ seed: 12 });
+  const r = lcg(12);
+  while (g.state !== 'over' && g.ticks < 120 * 600) { g.advance(1 / 60); bot(g, r); }
+  const inputs = runSummary(g).inputs;
+  const cut = new Replay(12, inputs.slice(0, Math.floor(inputs.length / 2)).map(([t, d]) => [t, d === 'l' ? 'r' : 'l'])).runToEnd();
+  assert.ok(cut.score !== g.score || cut.ticks !== g.ticks);
 });
 
 test('tempo sanity: a snail crosses a row in a few seconds, not a minute', () => {

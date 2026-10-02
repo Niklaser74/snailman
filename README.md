@@ -7,6 +7,13 @@ i ditt eget blöta slem: ingen backning, ingen genväg tillbaka. Jägarna halkar
 på det. Kaffebönan gör dig snabb en stund, låter dig korsa slemmet, och skrämmer
 jägarna hem till komposten.
 
+**Dagens labyrint** är samma för alla under en dag, med topplista och
+rekordlista. **Snigelpost** är turneringar med kompisar i egen takt: 2–8
+spelare, 1, 3 eller 5 omgångar, alla spelar samma labyrinter när de hinner, en
+notis när någon har spelat, och varje omgång kan ses i repris efteråt.
+Reprisen spelar upp inspelningen i spelets egen motor och säger till om den
+inte kommer fram till samma poäng.
+
 Fjärde spelet i [snigelserien](https://snails.se) från Knackpot. Live på
 [snails.se/snailman/](https://snails.se/snailman/).
 
@@ -34,9 +41,13 @@ js/hunters.js         jägarnas AI: de fyra temperamenten från arkadspelet
 js/sprites.js         jägarna och föremålen
 js/view.js            labyrinten på canvas
 js/input.js           svep, styrkors och tangentbord
-js/main.js            meny, loop, spara, ljud, PWA
+js/online.js          topplistor och turneringar mot Supabase
+js/standings.js       turneringens placering (kopia i edge-funktionen)
+js/push.js            notiser
+js/main.js            meny, loop, spara, ljud, de fyra lägena, PWA
 js/game/              kopior från snailmageddon: snigelritare, palett, ljud, RNG
-test/                 paths, rules, maze, engine, sw
+test/                 paths, rules, maze, engine, online, sw
+supabase/             migrationer, SQL-test, edge-funktionen snailman-notify
 ```
 
 ## Så hänger det ihop
@@ -60,4 +71,4 @@ relativa sökvägar, egen cache-prefix (`snailman-`), egna `localStorage`-nyckla
 
 - Speltesta vidare: snigelns fart och jägarnas tempo (slemtiden är satt till 6 s efter speltest).
 - Fler labyrinter — `test/maze.test.mjs` godkänner dem.
-- Leaderboard i Supabase `snails` (prefix `snailman_`), delade konton med de andra spelen.
+- Verifiera inspelningar på servern, så att topplistan inte bara litar på klienten.

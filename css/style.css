@@ -84,3 +84,56 @@ footer a { color: inherit; }
   .pad-btn { font-size: 22px; }
   .banner { font-size: 26px; }
 }
+
+/* ---------- online: menu, leaderboard, Snigelpost, tournament, replay ---------- */
+.btn.wide { flex: 1 1 100%; }
+.hint.left { text-align: left; }
+.panel h3 { margin: 18px 0 6px; font-size: 16px; }
+.panel.wide { width: min(620px, 100%); }
+.online-line { font-size: 14px; font-weight: 700; color: var(--accent); margin: 0 0 12px; }
+.tabs { display: flex; gap: 4px; background: var(--chip); border-radius: 999px; padding: 3px; margin: 0 0 8px; }
+.tabs button { flex: 1; border: 0; background: transparent; padding: 7px 10px; border-radius: 999px; font-weight: 700; color: var(--muted); cursor: pointer; }
+.tabs button[aria-selected="true"] { background: var(--ink); color: #fff; }
+.board-list, .post-list { list-style: none; margin: 6px 0; padding: 0; display: grid; gap: 4px; }
+.board-list li { display: grid; grid-template-columns: 28px 1fr auto; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 10px; background: var(--chip); }
+.board-list li.mine { background: #d9f2df; outline: 2px solid var(--accent); }
+.board-list li.none, .post-list li.none { display: block; background: none; color: var(--muted); text-align: center; }
+.board-list .rank { font-weight: 800; color: var(--muted); text-align: right; }
+.who { display: grid; font-weight: 700; min-width: 0; overflow-wrap: anywhere; }
+.who small { font-weight: 400; color: var(--muted); font-size: 12px; }
+.board-list .pts { font-weight: 800; font-variant-numeric: tabular-nums; }
+.post-list li.prow { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px; background: var(--chip); cursor: pointer; }
+.post-list li.prow.turn { outline: 2px solid var(--accent); background: #e6f6ea; }
+.field { display: grid; gap: 3px; font-size: 13px; font-weight: 700; color: var(--muted); margin: 0 0 10px; flex: 1; }
+.field input, .field select { font: inherit; font-size: 16px; color: var(--ink); padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.row { display: flex; gap: 10px; }
+.invite { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
+.invite input { flex: 1 1 200px; font: inherit; font-size: 14px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); min-width: 0; }
+.table-wrap { overflow-x: auto; margin: 4px 0 8px; }
+.standings { width: 100%; border-collapse: collapse; font-size: 14px; }
+.standings th { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); text-align: right; padding: 4px 6px; white-space: nowrap; }
+.standings th:nth-child(2) { text-align: left; }
+.standings td { padding: 6px; text-align: right; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.standings td.who { display: table-cell; text-align: left; white-space: normal; }
+.standings td.place { color: var(--muted); font-weight: 800; width: 1.5em; }
+.standings td.pts { font-weight: 800; }
+.standings td.none { color: var(--muted); }
+.standings tr.mine td { background: #e6f6ea; }
+.standings .cell { font: inherit; font-variant-numeric: tabular-nums; border: 0; border-radius: 8px; padding: 3px 7px; background: var(--chip); color: var(--ink); cursor: pointer; }
+.standings .cell:hover { background: #d9f2df; }
+.stat.target { background: rgba(240, 196, 25, 0.85); color: var(--ink); }
+.replay-bar { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(14px + var(--safe-b)); display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 14px; border-radius: 14px; background: var(--hud); color: #fff; font-weight: 700; max-width: calc(100% - 16px); }
+.replay-bar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.icon-btn.wide-icon { width: auto; padding: 0 10px; font-weight: 800; font-size: 14px; }
+@media (orientation: landscape) and (max-height: 520px) {
+  .stat.target { flex: 1 1 100%; }
+  .replay-bar { left: auto; right: calc(8px + env(safe-area-inset-right, 0px)); transform: none; width: calc(var(--side) - 16px); flex-wrap: wrap; padding: 6px; font-size: 13px; }
+}
+@media (max-width: 440px) {
+  .panel.wide { padding: 18px 14px; }
+  .standings { font-size: 13px; }
+  .standings th { padding: 4px 3px; letter-spacing: 0; }
+  .standings td { padding: 5px 3px; }
+  .standings td.who { max-width: 6.5em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .standings .cell { padding: 2px 5px; }
+}
