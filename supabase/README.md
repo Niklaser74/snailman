@@ -16,14 +16,15 @@ snailmageddon-repots `supabase/README.md`.
 | `snailman_contest_players` | Deltagare med namn; `hidden` när någon tagit bort en avslutad turnering ur sin lista |
 | `snailman_contest_runs` | En omgång per spelare: poäng, nivå, ticks, inspelning. Främmande nyckel mot deltagaren, så att lämna tar med omgångarna |
 | `snailman_daily_submit/daily_board/records_board` | topplistorna |
-| `snailman_daily_leader` | **den enda som är öppen för anon**: dagens ledares namn och poäng + antal spelare, för hubbens kort (som aldrig skapar konton) |
+| `snailman_daily_leader`, `snailman_contest_stats` | **de enda som är öppna för anon**: dagens ledares namn och poäng + antal spelare, och antal pågående turneringar och veckans omgångar (bara siffror), för hubbens kort (som aldrig skapar konton) |
+| `snailman_contest_mine_brief` | hubbens sammanfattning av de egna pågående turneringarna: nästa omgång (null = väntar på de andra), antal spelare, deadline. Hubben anropar den bara med en session webbläsaren redan har |
 | `snailman_contest_create/join/get/my_contests/submit/run/close/leave` | turneringarna |
 | `snailman_contest_settle` (intern) | avslutar när alla platser är fyllda och alla spelat allt, eller vid deadline. Anropas av get, join, submit och listan, så att ingen behöver vänta på cron |
 | `snailman_cleanup` + cron `snailman_cleanup` (`41 * * * *`) | deadline, avslutade turneringar efter 90 dagar, dagsrader efter 60 |
 | edge-funktion `snailman-notify` | push till de andra i en turnering: någon gick med, någon spelade (din tur, eller "X slog dig på omgång 2"), slutplacering. Skickar via `snailman_push_subscriptions` och `snails_vapid_private` |
 | `snailman_push_subscriptions`, `snailman_save_push/remove_push` | Snailmans egna push-prenumerationer (som Snigelkrattan och Snail Story). Den delade `snails_push_subscriptions` saknar spelkolumn, så notiser läckte mellan spelen. `snailman_save_push` tar också bort samma endpoint ur den delade tabellen; `js/push.js` anropar den vid start, så gamla prenumerationer flyttas när Snailman öppnas |
 
-Alla klientfunktioner är `security definer`. Alla utom `snailman_daily_leader` kontrollerar `auth.uid()` och är
+Alla klientfunktioner är `security definer`. Alla utom de två anon-funktionerna kontrollerar `auth.uid()` och är
 beviljade bara till `authenticated`; tabellerna har RLS utan policyer, så
 klienten når dem aldrig direkt.
 
