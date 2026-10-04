@@ -68,10 +68,21 @@ export const net = {
   signedIn: () => online.signedIn(),
   userId: () => online.userId(),
 
-  // The series profile name, if this browser already has an account — never creates one.
+  // The series profile name, if this browser already has an account — never
+  // creates one. "Snäcka" is the default the profile gets for an empty name,
+  // not a choice (the server's snailman_profile_name says the same).
   async profileName() {
     if (!online.signedIn()) return '';
-    try { return cleanName((await online.rpc('snails_profile'))?.name); } catch { return ''; }
+    try { const n = cleanName((await online.rpc('snails_profile'))?.name); return n === 'Snäcka' ? '' : n; } catch { return ''; }
+  },
+  // A name typed in the game is the account's name: the server shows the
+  // profile name whenever there is one, so saving it anywhere else would be
+  // ignored. Keeps the look as it is. Only with an account — never creates one.
+  async setName(name) {
+    if (!online.signedIn()) return false;
+    const p = await online.rpc('snails_profile');
+    await online.rpc('snails_profile_set', { p_name: cleanName(name), p_look: p?.look || {} });
+    return true;
   },
 
   daily: {

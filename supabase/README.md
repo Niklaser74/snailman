@@ -108,3 +108,15 @@ select count(*) filter (where f.table_name is null) as missing,
   string_agg(c.table_name || '.' || c.column_name, ', ') filter (where f.table_name is null) as which
 from cols c left join fks f using (table_name, column_name);
 ```
+
+## Namn
+
+Namnet på topplistor och i turneringar är kontots: profilnamnet i
+`snails_profiles` (snails.se/account/) när spelaren valt ett, annars det namn
+spelet skickade. Standardnamnet "Snäcka" räknas inte som ett val. Regeln finns
+på ett ställe, `snailman_name()` (`20261004090000_snailman_profile_names.sql`).
+Det lagrade namnet hålls rätt i stället för att slås upp vid varje läsning,
+eftersom topplistorna, hubbens ledare, turneringssammanfattningen och
+push-funktionen alla läser det: vid varje skrivning, och av triggern
+`snailman_profile_renamed` när profilen byter namn. Ett namn som skrivs i
+spelets Snigelpost-ruta sparas på kontot (`net.setName`).

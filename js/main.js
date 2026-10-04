@@ -317,14 +317,23 @@ function refreshTarget() {
 
 // ---------- names ----------
 function playerName() { return cleanName(store.get('name', '')) || t('post.defaultName'); }
+// One name for the player, the account's (snails.se/account/). The local copy
+// is only for playing offline and before there is an account; the server
+// shows the profile name whenever the player has chosen one.
 async function fillName(input) {
-  let n = cleanName(store.get('name', ''));
-  if (!n) { n = await net.profileName(); if (n) store.set('name', n); }
+  const n = (await net.profileName()) || cleanName(store.get('name', ''));
+  if (n) store.set('name', n);
   input.value = n;
 }
 for (const id of ['opt-name', 'opt-join-name']) {
-  $(id).addEventListener('change', (e) => store.set('name', cleanName(e.target.value)));
+  $(id).addEventListener('change', (e) => {
+    const n = cleanName(e.target.value);
+    store.set('name', n);
+    if (n) net.setName(n).catch(() => { /* offline: the next result carries it */ });
+  });
 }
+// the account's name, fetched once per visit so the boards and the HUD agree with it
+if (net.signedIn()) net.profileName().then((n) => { if (n) store.set('name', n); });
 
 // ---------- leaderboard ----------
 let dailyCache = null; // the last board seen for a day, for the menu line and the HUD
